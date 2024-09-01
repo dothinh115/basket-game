@@ -12,8 +12,7 @@ export class MainGame {
     blame.classList = "w-8 h-8 bg-yellow-500 blame";
     blame.style.position = "absolute";
     blame.style.top = "0px";
-    blame.style.left = `${Math.random() * (container.offsetWidth - 30)}px`; // Random position within container
-    container.appendChild(blame);
+    blame.style.left = `${Math.random() * (container.offsetWidth - 30)}px`;
     this.blameArr.push(blame);
     this.dropBlame(blame, container);
   };

@@ -106,7 +106,6 @@
         MainGame.isLose = false;
       };
 
-      // Check if blame is in the basket periodically
       function updateGameStatus() {
         document.querySelector("#score").innerText = MainGame.score;
         document.querySelector("#miss").innerText = MainGame.missed;
@@ -115,7 +114,6 @@
           if (MainGame.checkBlameInBasket(blame)) {
             blame.remove();
             MainGame.blameArr = MainGame.blameArr.filter((b) => b !== blame);
-            // Increase score
             MainGame.score = (MainGame.score || 0) + 1;
           }
         });
