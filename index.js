@@ -76,14 +76,7 @@ export class MainGame {
   static getBlames = () => this.blameArr;
 
   static clearBlames = () => {
+    this.blameArr.forEach((blame) => blame.remove());
     this.blameArr = [];
-    const blames = document
-      .querySelector("#main-game")
-      .querySelectorAll(".blame");
-    if (blames.length > 0) {
-      blames.forEach((blame) => {
-        blame.remove();
-      });
-    }
   };
 }
