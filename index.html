@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style type="text/tailwindcss">
+      @layer utilities {
+        #basket {
+          @apply w-[100px] h-5 bg-[#3498db] absolute bottom-0 left-1/2 -translate-x-1/2;
+        }
+        #game-over {
+          @apply fixed inset-0 flex flex-col space-y-5 items-center justify-center bg-black bg-opacity-75 text-white text-2xl h-[100dvh];
+          display: none;
+        }
+      }
+    </style>
+    <title>Game</title>
+  </head>
+  <body>
+    <div
+      class="flex h-[100dvh] justify-center items-center w-full bg-black flex-col space-y-5"
+    >
+      <div
+        class="bg-white lg:w-[1000px] lg:h-[700px] relative overflow-hidden"
+        id="main-game"
+      >
+        <div id="basket"></div>
+      </div>
+      <div class="w-[1000px] flex space-x-2 items-center">
+        <button
+          type="button"
+          class="bg-green-500 text-white p-2 rounded-sm"
+          onclick="handleStartGame()"
+        >
+          Start
+        </button>
+        <button
+          type="button"
+          class="bg-red-500 text-white p-2 rounded-sm"
+          onclick="handleEndGame()"
+        >
+          End
+        </button>
+        <span class="text-xl text-white">Điểm: <span id="score"></span></span>
+        <span class="text-xl text-red-500"
+          >Miss: <span id="miss"></span> (Miss <span id="miss-limit"></span> lần
+          sẽ thua)</span
+        >
+      </div>
+      <div id="game-over">
+        <div>Bạn đã thua!</div>
+        <div>
+          <button
+            type="button"
+            class="bg-red-500 p-1 w-20 rounded-md"
+            onclick="handleCloseModal()"
+          >
+            Tắt
+          </button>
+        </div>
+      </div>
+    </div>
+    <script type="module" src="index.js"></script>
+    <script type="module">
+      import { MainGame } from "./index.js";
+      const mainGameEl = document.querySelector("#main-game");
+      const basket = document.querySelector("#basket");
+      let interval = null;
+
+      document.querySelector("#score").innerText = 0;
+      document.querySelector("#miss").innerText = 0;
+      document.querySelector("#miss-limit").innerText = MainGame.missLimit;
+
+      // Update basket position based on mouse movement
+      document.addEventListener("mousemove", (event) => {
+        basket.style.left = `${
+          event.clientX -
+          mainGameEl.getBoundingClientRect().left -
+          basket.offsetWidth / 2
+        }px`;
+      });
+
+      window.handleStartGame = () => {
+        if (mainGameEl) {
+          MainGame.setStart(true);
+          document.querySelector("#score").innerText = 0;
+          document.querySelector("#miss").innerText = 0;
+          interval = setInterval(updateGameStatus, 100);
+        } else {
+          console.error("#main-game element not found");
+        }
+      };
+
+      window.handleEndGame = () => {
+        MainGame.setStart(false);
+        clearInterval(interval);
+        MainGame.clearBlames();
+        document.querySelector("#score").innerText = 0;
+        document.querySelector("#miss").innerText = 0;
+      };
+
+      window.handleCloseModal = () => {
+        document.querySelector("#game-over").style.display = "none";
+        MainGame.score = 0;
+        MainGame.missed = 0;
+        MainGame.isLose = false;
+      };
+
+      // Check if blame is in the basket periodically
+      function updateGameStatus() {
+        document.querySelector("#score").innerText = MainGame.score;
+        document.querySelector("#miss").innerText = MainGame.missed;
+
+        MainGame.blameArr.forEach((blame) => {
+          if (MainGame.checkBlameInBasket(blame)) {
+            blame.remove();
+            MainGame.blameArr = MainGame.blameArr.filter((b) => b !== blame);
+            // Increase score
+            MainGame.score = (MainGame.score || 0) + 1;
+          }
+        });
+
+        if (MainGame.missed >= MainGame.missLimit) {
+          MainGame.setStart(false);
+          MainGame.isLose = true;
+          MainGame.clearBlames();
+          document.querySelector("#game-over").style.display = "flex";
+          clearInterval(interval);
+        }
+      }
+    </script>
+  </body>
+</html>
